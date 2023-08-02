@@ -3,6 +3,8 @@ package com.elijah.flightbookingapp.controller.customer;
 import com.elijah.flightbookingapp.dto.customer.CustomerDto;
 import com.elijah.flightbookingapp.dto.customer.CustomerUpdateDto;
 import com.elijah.flightbookingapp.dto.customer.SignInDto;
+import com.elijah.flightbookingapp.dto.image.ImageDto;
+import com.elijah.flightbookingapp.exception.DataAlreadyExistException;
 import com.elijah.flightbookingapp.exception.DataNotFoundException;
 import com.elijah.flightbookingapp.model.customer.Customer;
 import com.elijah.flightbookingapp.model.image.ImageModel;
@@ -35,16 +37,19 @@ public class CustomerController {
         this.imageService = imageService;
     }
 
-    @PostMapping("/customer/register")
-    public ResponseEntity<ApiResponse> uploadUserInfo(@RequestParam("file") MultipartFile file, @RequestPart("customer") CustomerDto customerDto) throws Exception {
+    @PostMapping("profileImage/upload")
+    public ResponseEntity<ImageDto> saveProfileImage(@RequestParam("file") MultipartFile file) throws Exception {
         ImageModel imageModel = imageService.saveProfileImage(file);
         String downloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/download/")
                 .path(imageModel.getId())
                 .toUriString();
-        customerService.signUpCustomer(customerDto,downloadUrl);
+         return new ResponseEntity<>(new ImageDto(imageModel.getFileName(),downloadUrl,file.getContentType(), file.getSize()),HttpStatus.CREATED);
+    }
 
-        return  new ResponseEntity<>(new ApiResponse(true,downloadUrl), HttpStatus.CREATED);
+    @PostMapping("/customer/create")
+    public ResponseEntity<ApiResponse> createCustomer(@RequestBody CustomerDto customerDto) throws DataAlreadyExistException, NoSuchAlgorithmException {
+        return new ResponseEntity<>(customerService.signUpCustomer(customerDto),HttpStatus.CREATED);
     }
     @GetMapping("/download/{imageId}")
     public ResponseEntity<Resource> downloadImage(@PathVariable("imageId") String imageId) throws Exception {
@@ -66,8 +71,7 @@ public class CustomerController {
     }
     @PostMapping("/customer/signIn")
     public ResponseEntity<Customer> signInCustomer(@RequestBody SignInDto signInDto) throws NoSuchAlgorithmException, DataNotFoundException {
-        customerService.signInUser(signInDto);
-        return new ResponseEntity<>(new Customer(),HttpStatus.OK);
+        return new ResponseEntity<>(customerService.signInUser(signInDto),HttpStatus.OK);
     }
     @PutMapping("/customer/info/update")
     public ResponseEntity<ApiResponse> updateCustomerInfo(@RequestBody CustomerUpdateDto customerUpdateDto, @RequestParam("email") String email) throws NoSuchAlgorithmException, DataNotFoundException {

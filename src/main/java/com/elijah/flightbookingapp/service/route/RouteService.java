@@ -1,6 +1,7 @@
 package com.elijah.flightbookingapp.service.route;
 
 import com.elijah.flightbookingapp.dto.route.RouteDto;
+import com.elijah.flightbookingapp.dto.route.RouteSearchDto;
 import com.elijah.flightbookingapp.exception.DataNotFoundException;
 import com.elijah.flightbookingapp.model.route.RouteModel;
 import com.elijah.flightbookingapp.repository.route.RouteRepository;
@@ -23,18 +24,22 @@ public class RouteService {
         routeModel.setDestination(routeDto.getDestination());
         routeModel.setBoardingType(routeDto.getBoardingType());
         routeModel.setPrice(routeDto.getPrice());
-        routeModel.setFlightDay(routeDto.getFlightDay());
         routeModel.setTakeOffLocation(routeDto.getTakeOffLocation());
         routeModel.setTakeOffTime(routeDto.getTakeOffTime());
+        routeModel.setTakeOffAbbreviation(routeDto.getTakeOffAbbreviation());
+        routeModel.setDestinationAbbreviation(routeDto.getDestinationAbbreviation());
+        routeModel.setFlightDuration(routeDto.getFlightDuration());
+
 
         return routeRepository.save(routeModel);
     }
 
     public RouteModel findRouteById(Integer id) throws DataNotFoundException {
-        if (Objects.isNull(routeRepository.findById(id))){
+        Optional<RouteModel> routeModel = routeRepository.findById(id);
+        if (!routeModel.isPresent()){
             throw new DataNotFoundException("There is no route with this id");
         }
-        return routeRepository.findById(id).get();
+        return routeModel.get();
     }
     public RouteModel updateRoute(RouteDto routeDto,Integer id) throws DataNotFoundException, ParseException {
         Optional<RouteModel> routeModel = routeRepository.findById(id);
@@ -52,8 +57,6 @@ public class RouteService {
         }
         if (Objects.nonNull(routeDto.getDestination())&& !"".equalsIgnoreCase(routeDto.getDestination())){
             routeModel.get().setDestination(routeDto.getDestination());
-        }if (Objects.nonNull(routeDto.getFlightDay())&& !"".equalsIgnoreCase(routeDto.getFlightDay())){
-            routeModel.get().setFlightDay(routeDto.getFlightDay());
         }
         if (Objects.nonNull(routeDto.getTakeOffLocation())&& !"".equalsIgnoreCase(routeDto.getTakeOffLocation())){
             routeModel.get().setTakeOffLocation(routeDto.getTakeOffLocation());
@@ -73,5 +76,10 @@ public class RouteService {
 
     public List<RouteModel> routeModelList(){
         return routeRepository.findAll();
+    }
+
+    public List<RouteModel> routeModelBasedOnSearch(RouteSearchDto routeSearchDto){
+        return routeRepository.findAllRouteBasedOnEntry(routeSearchDto.getTakeOffLocation(),
+                routeSearchDto.getDestination());
     }
 }

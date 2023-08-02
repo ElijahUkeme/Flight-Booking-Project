@@ -1,10 +1,15 @@
 package com.elijah.flightbookingapp.dto.route;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -13,9 +18,43 @@ public class RouteDto {
 
     private String takeOffLocation;
     private String destination;
+    private String destinationAbbreviation;
+    private String takeOffAbbreviation;
+    private String flightDuration;
+
+    public String getFlightDuration() {
+        return flightDuration;
+    }
+
+    public void setFlightDuration(String flightDuration) {
+        this.flightDuration = flightDuration;
+    }
+
+    public String getDestinationAbbreviation() {
+        return destinationAbbreviation;
+    }
+
+    public void setDestinationAbbreviation(String destinationAbbreviation) {
+        this.destinationAbbreviation = destinationAbbreviation;
+    }
+
+    public String getTakeOffAbbreviation() {
+        return takeOffAbbreviation;
+    }
+
+    public void setTakeOffAbbreviation(String takeOffAbbreviation) {
+        this.takeOffAbbreviation = takeOffAbbreviation;
+    }
+
+    @Temporal(TemporalType.TIME)
+    @DateTimeFormat(style = "hh:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "hh:mm")
     private Date takeOffTime;
+
+    @Temporal(TemporalType.TIME)
+    @DateTimeFormat(style = "hh:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "hh:mm")
     private Date arrivalTime;
-    private String flightDay;
     private double price;
 
     public double getPrice() {
@@ -35,14 +74,6 @@ public class RouteDto {
     }
 
     private String boardingType;
-
-    public String getFlightDay() {
-        return flightDay;
-    }
-
-    public void setFlightDay(String flightDay) {
-        this.flightDay = flightDay;
-    }
 
 
     public String getTakeOffLocation() {

@@ -1,6 +1,7 @@
 package com.elijah.flightbookingapp.controller.route;
 
 import com.elijah.flightbookingapp.dto.route.RouteDto;
+import com.elijah.flightbookingapp.dto.route.RouteSearchDto;
 import com.elijah.flightbookingapp.exception.DataNotFoundException;
 import com.elijah.flightbookingapp.model.route.RouteModel;
 import com.elijah.flightbookingapp.response.ApiResponse;
@@ -41,5 +42,10 @@ public class RouteController {
     @GetMapping("/route/list")
     public ResponseEntity<List<RouteModel>> getAllRoute(){
         return new ResponseEntity<>(routeService.routeModelList(),HttpStatus.OK);
+    }
+
+    @PostMapping("/route/search")
+    public ResponseEntity<List<RouteModel>> getRouteBasedOnSearch(@RequestBody RouteSearchDto routeSearchDto){
+        return new ResponseEntity<>(routeService.routeModelBasedOnSearch(routeSearchDto),HttpStatus.OK);
     }
 }

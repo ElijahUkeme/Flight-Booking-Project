@@ -22,11 +22,12 @@ public class Customer {
     private String phoneNumber;
     private String email;
     private String password;
-    private String occupation;
     private LocalDate dateOfBirth;
     private Integer age;
+    private Integer approvedTrip;
+    private Integer cancelledTrip;
+    private Integer pendingTrip;
     private String stateOfOrigin;
     private String localGovernment;
-    private String maritalStatus;
     private String profileImage;
 }

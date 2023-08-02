@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -20,6 +21,35 @@ public class RouteModel {
 
     private String takeOffLocation;
     private String destination;
+    private String takeOffAbbreviation;
+    private String destinationAbbreviation;
+    private String flightDuration;
+
+    public String getFlightDuration() {
+        return flightDuration;
+    }
+
+    public void setFlightDuration(String flightDuration) {
+        this.flightDuration = flightDuration;
+    }
+
+    public String getTakeOffAbbreviation() {
+        return takeOffAbbreviation;
+    }
+
+    public void setTakeOffAbbreviation(String takeOffAbbreviation) {
+        this.takeOffAbbreviation = takeOffAbbreviation;
+    }
+
+    public String getDestinationAbbreviation() {
+        return destinationAbbreviation;
+    }
+
+    public void setDestinationAbbreviation(String destinationAbbreviation) {
+        this.destinationAbbreviation = destinationAbbreviation;
+    }
+
+
 
     @Temporal(TemporalType.TIME)
     @DateTimeFormat(style = "hh:mm")
@@ -32,7 +62,6 @@ public class RouteModel {
     private Date arrivalTime;
     private double price;
     private String boardingType;
-    private String flightDay;
 
 
     public double getPrice() {
@@ -96,14 +125,6 @@ public class RouteModel {
 
     public void setArrivalTime(Date arrivalTime) {
         this.arrivalTime = arrivalTime;
-    }
-
-    public String getFlightDay() {
-        return flightDay;
-    }
-
-    public void setFlightDay(String flightDay) {
-        this.flightDay = flightDay;
     }
 
 

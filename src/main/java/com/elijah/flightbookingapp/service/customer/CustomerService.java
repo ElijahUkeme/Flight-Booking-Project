@@ -6,7 +6,11 @@ import com.elijah.flightbookingapp.dto.customer.SignInDto;
 import com.elijah.flightbookingapp.exception.DataAlreadyExistException;
 import com.elijah.flightbookingapp.exception.DataNotFoundException;
 import com.elijah.flightbookingapp.model.customer.Customer;
+import com.elijah.flightbookingapp.model.trip.TripModel;
 import com.elijah.flightbookingapp.repository.customer.CustomerRepository;
+import com.elijah.flightbookingapp.repository.trip.TripRepository;
+import com.elijah.flightbookingapp.response.ApiResponse;
+import com.elijah.flightbookingapp.service.trip.TripService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +28,10 @@ public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    public Customer signUpCustomer(CustomerDto customerDto, String profileImageUrl) throws DataAlreadyExistException, NoSuchAlgorithmException {
+    @Autowired
+    private TripRepository tripRepository;
+
+    public ApiResponse signUpCustomer(CustomerDto customerDto) throws DataAlreadyExistException, NoSuchAlgorithmException {
 
         if (Objects.nonNull(customerRepository.findByEmail(customerDto.getEmail()))){
             throw new DataAlreadyExistException("Email Address Already Taken By Another Customer");
@@ -44,15 +51,17 @@ public class CustomerService {
         customer.setEmail(customerDto.getEmail());
         customer.setGender(customerDto.getGender());
         customer.setLocalGovernment(customerDto.getLocalGovernment());
-        customer.setMaritalStatus(customerDto.getMaritalStatus());
         customer.setName(customerDto.getName());
-        customer.setOccupation(customerDto.getOccupation());
+        customer.setApprovedTrip(0);
+        customer.setCancelledTrip(0);
+        customer.setPendingTrip(0);
         customer.setAge(Period.between(customerDto.getDateOfBirth(),LocalDate.now()).getYears());
         customer.setPassword(encryptedCustomerPassword);
         customer.setPhoneNumber(customerDto.getPhoneNumber());
         customer.setStateOfOrigin(customerDto.getStateOfOrigin());
-        customer.setProfileImage(profileImageUrl);
-        return customerRepository.save(customer);
+        customer.setProfileImage(customerDto.getProfileImage());
+         customerRepository.save(customer);
+         return new ApiResponse(true,"Customer Registration Successfully");
 
     }
 
@@ -61,6 +70,7 @@ public class CustomerService {
         if (Objects.isNull(customer)){
             throw new DataNotFoundException("There is no customer with this emil address");
         }
+        //updateTripCount(customer, customer.getEmail());
         return customer;
     }
     public Customer getCustomerByPhoneNumber(String phoneNumber) throws DataNotFoundException {
@@ -68,6 +78,7 @@ public class CustomerService {
         if (Objects.isNull(customer)){
             throw new DataNotFoundException("There is no customer with this phone Number");
         }
+        updateTripCount(customer, customer.getEmail());
         return customer;
     }
 
@@ -86,6 +97,7 @@ public class CustomerService {
         if (!customer.getPassword().equals(hashPassword(signInDto.getPassword()))){
             throw new DataNotFoundException("Invalid Email or Password");
         }
+        updateTripCount(customer, signInDto.getEmail());
 
         return customer;
     }
@@ -101,12 +113,8 @@ public class CustomerService {
             customer.setAge(Period.between(customerUpdateDto.getDateOfBirth(),LocalDate.now()).getYears());
         }if (Objects.nonNull(customerUpdateDto.getEmail())&& !"".equals(customerUpdateDto.getEmail())){
             customer.setEmail(customerUpdateDto.getEmail());
-        }if (Objects.nonNull(customerUpdateDto.getMaritalStatus())&& !"".equals(customerUpdateDto.getMaritalStatus())){
-            customer.setMaritalStatus(customerUpdateDto.getMaritalStatus());
         }if (Objects.nonNull(customerUpdateDto.getName())&& !"".equals(customerUpdateDto.getName())){
             customer.setName(customerUpdateDto.getName());
-        }if (Objects.nonNull(customerUpdateDto.getOccupation())&& !"".equals(customerUpdateDto.getOccupation())){
-            customer.setOccupation(customerUpdateDto.getOccupation());
         }if (Objects.nonNull(customerUpdateDto.getPassword())&& !"".equals(customerUpdateDto.getPassword())){
             customer.setPassword(hashPassword(customerUpdateDto.getPassword()));
         }if (Objects.nonNull(customerUpdateDto.getPhoneNumber())&& !"".equals(customerUpdateDto.getPhoneNumber())){
@@ -114,15 +122,34 @@ public class CustomerService {
         }
         return customerRepository.save(customer);
     }
-    public boolean checkInputFields(CustomerDto customerDto) {
-        return !customerDto.getEmail().isEmpty() && !customerDto.getPassword().isEmpty() && !customerDto.getAddress().isEmpty() &&
-                !customerDto.getDateOfBirth().toString().isEmpty() && !customerDto.getGender().isEmpty() && !customerDto.getLocalGovernment().isEmpty() &&
-                !customerDto.getMaritalStatus().isEmpty() && !customerDto.getName().isEmpty() && !customerDto.getOccupation().isEmpty() &&
-                !customerDto.getPhoneNumber().isEmpty() && !customerDto.getStateOfOrigin().isEmpty();
-    }
-
     public List<Customer> getAllCustomers(){
         List<Customer> customerList = customerRepository.findAll();
         return customerList;
     }
+    private void updateTripCount(Customer customer, String customerEmail) throws DataNotFoundException {
+        customer = getCustomerByEmail(customerEmail);
+        customer.setApprovedTrip(getCustomerApprovedTrip(customerEmail).size());
+        customer.setCancelledTrip(getTCustomerCancelledTrip(customerEmail).size());
+        customer.setPendingTrip(getCustomerPendingTrip(customerEmail).size());
+        customerRepository.save(customer);
+    }
+
+    public List<TripModel> getCustomerPendingTrip(String customerEmail) throws DataNotFoundException {
+        Customer customer = getCustomerByEmail(customerEmail);
+        List<TripModel> customerTrips = tripRepository.findByCustomerWhereStatusIsPending(customer);
+        return customerTrips;
+    }
+
+    public List<TripModel> getCustomerApprovedTrip(String customerEmail) throws DataNotFoundException {
+        Customer customer = getCustomerByEmail(customerEmail);
+        List<TripModel> customerTrips = tripRepository.findByCustomerWhereStatusIsApproved(customer);
+        return customerTrips;
+    }
+
+    public List<TripModel> getTCustomerCancelledTrip(String customerEmail) throws DataNotFoundException {
+        Customer customer = getCustomerByEmail(customerEmail);
+        List<TripModel> customerTrips = tripRepository.findByCustomerWhereStatusIsCancelled(customer);
+        return customerTrips;
+    }
+
 }

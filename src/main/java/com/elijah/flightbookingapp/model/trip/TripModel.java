@@ -25,7 +25,36 @@ public class TripModel {
     private String boardingType;
     private String takeOffLocation;
     private String destination;
+    private String status;
     private double price;
+    private String airplaneNumber;
+    private String pilotName;
+
+    public String getPilotName() {
+        return pilotName;
+    }
+
+    public void setPilotName(String pilotName) {
+        this.pilotName = pilotName;
+    }
+
+    public String getAirplaneNumber() {
+        return airplaneNumber;
+    }
+
+    public void setAirplaneNumber(String airplaneNumber) {
+        this.airplaneNumber = airplaneNumber;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status =status;
+    }
+
+
 
     @Temporal(TemporalType.TIME)
     @DateTimeFormat(style = "hh:mm")
@@ -37,7 +66,7 @@ public class TripModel {
     @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "hh:mm")
     private Date arrivalTime;
     private LocalDate travelDate;
-    private String sitNumber;
+    private int seatNumber;
     @OneToOne
     @JoinColumn(name = "route_id")
     private RouteModel routeModel;
@@ -115,12 +144,12 @@ public class TripModel {
         this.travelDate = travelDate;
     }
 
-    public String getSitNumber() {
-        return sitNumber;
+    public int getSeatNumber() {
+        return seatNumber;
     }
 
-    public void setSitNumber(String sitNumber) {
-        this.sitNumber = "A"+getId();
+    public void setSeatNumber(int seatNumber) {
+        this.seatNumber = seatNumber;
     }
 
     public RouteModel getRouteModel() {

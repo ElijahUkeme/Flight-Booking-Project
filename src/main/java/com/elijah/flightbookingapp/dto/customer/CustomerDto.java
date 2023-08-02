@@ -17,10 +17,9 @@ public class CustomerDto {
     private String phoneNumber;
     private String email;
     private String password;
-    private String occupation;
     private LocalDate dateOfBirth;
     private String stateOfOrigin;
     private String localGovernment;
-    private String maritalStatus;
+    private String profileImage;
 }
 
